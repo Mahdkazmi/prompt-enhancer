@@ -1,0 +1,16 @@
+# Secrets — never commit API keys
+.env
+*.key
+secrets.js
+local-config.js
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Packaged builds
+*.zip
+*.crx
+*.pem
