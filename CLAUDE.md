@@ -38,8 +38,8 @@ Mahd — BS Data Science student, comfortable with Python/LLMs/RAG, **new to bro
 3. ✅ Options page to save the Groq API key in `chrome.storage.local`
 4. ✅ Send the grabbed text to Groq with a rewriting system prompt; log the result
    - Known prompt quirks to revisit (step 7): sometimes hints at answer content in "e.g." lists; occasional slip out of the user's voice ("you're" instead of "I'm")
-5. Write the improved prompt back into the box (must handle `textarea`/`input` AND `contenteditable` editors like ChatGPT/Claude — these need input events fired so the site registers the change)
-6. **Preview before replace:** show original vs improved, user accepts/edits/rejects (do not silently auto-replace)
+5. 🔄 **Preview panel** (swapped ahead of write-back so nothing is ever replaced without a click): in-page panel (shadow DOM) shows original + editable improved prompt, with Copy and Close. No replacing yet.
+6. **Replace button** in the preview: write the (possibly edited) improved prompt back into the box (must handle `textarea`/`input` AND `contenteditable` editors like ChatGPT/Claude — these need input events fired so the site registers the change)
 7. **Task-type detection:** code / writing / research / summarizing etc., each with its own rewrite template
 8. **Clarifying questions:** if key info is missing (audience, format, constraints), ask 2–3 quick questions before rewriting
 9. Short "why I changed this" note
