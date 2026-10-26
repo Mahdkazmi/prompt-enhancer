@@ -35,8 +35,9 @@ Mahd — BS Data Science student, comfortable with Python/LLMs/RAG, **new to bro
 ## Planned features (in rough order)
 1. ✅ Manifest + background service worker skeleton
 2. ✅ Grab text from the focused box (generic mode) — skips password fields, handles restricted pages
-3. 🔄 Options page to save the Groq API key in `chrome.storage.local`
-4. Send the grabbed text to Groq with a rewriting system prompt; log the result
+3. ✅ Options page to save the Groq API key in `chrome.storage.local`
+4. ✅ Send the grabbed text to Groq with a rewriting system prompt; log the result
+   - Known prompt quirks to revisit (step 7): sometimes hints at answer content in "e.g." lists; occasional slip out of the user's voice ("you're" instead of "I'm")
 5. Write the improved prompt back into the box (must handle `textarea`/`input` AND `contenteditable` editors like ChatGPT/Claude — these need input events fired so the site registers the change)
 6. **Preview before replace:** show original vs improved, user accepts/edits/rejects (do not silently auto-replace)
 7. **Task-type detection:** code / writing / research / summarizing etc., each with its own rewrite template
@@ -59,8 +60,9 @@ prompt-enhancer/
 ├── CLAUDE.md          # this file
 ├── manifest.json      # MV3 manifest
 ├── background.js      # service worker: shortcut, context menu, API calls
-├── options.html/.js   # (planned) API key + settings
-├── config.js          # (planned) provider/model/endpoint in one place
+├── options.html/.js   # API key + settings
+├── config.js          # provider/model/endpoint in one place
+├── prompts.js         # rewriting system prompt (+ future templates)
 └── adapters/          # (planned) per-site modules
 ```
 
