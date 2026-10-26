@@ -68,6 +68,9 @@ async function grabText(tabId) {
         }
         // Tell the user directly; they won't be looking at the service worker console
         if (text === null) alert("Prompt Enhancer: click into a text box first.");
+        // Remember the box for the Replace button: focus moves to our panel, so we can't
+        // look it up again later. Our injected scripts share this global; the site can't see it.
+        else globalThis.__promptEnhancerTarget = el;
         return text;
       }
     });
