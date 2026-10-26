@@ -1,5 +1,6 @@
 import { CONFIG } from "./config.js";
 import { SYSTEM_PROMPT, buildUserMessage, extractImproved } from "./prompts.js";
+import { renderPanel } from "./panel.js";
 
 // Add "Enhance prompt" to the right-click menu, only on text boxes
 chrome.runtime.onInstalled.addListener(() => {
@@ -22,7 +23,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   if (tab) enhancePrompt(tab.id);
 });
 
-// Full flow: read the box -> ask the model -> (for now) log the result
+// Full flow: read the box -> show "Enhancing…" -> ask the model -> show the result for review
 async function enhancePrompt(tabId) {
   const text = await grabText(tabId);
   if (text === null) return; // grabText already told the user why
@@ -30,14 +31,25 @@ async function enhancePrompt(tabId) {
     showMessage(tabId, "The text box is empty. Type a prompt first.");
     return;
   }
+  await showPanel(tabId, { state: "loading", original: text });
   try {
     console.log("Sending to model…");
     const improved = await rewriteWithModel(text);
     console.log("Improved prompt:\n" + improved);
+    await showPanel(tabId, { state: "done", original: text, improved });
   } catch (err) {
     console.error("Enhance failed:", err.message);
-    showMessage(tabId, err.message);
+    await showPanel(tabId, { state: "error", original: text, error: err.message });
   }
+}
+
+// Draws or updates the preview panel in the page (see panel.js)
+function showPanel(tabId, data) {
+  return chrome.scripting.executeScript({
+    target: { tabId },
+    func: renderPanel,
+    args: [data]
+  }).catch((err) => console.error("Couldn't show the panel:", err.message));
 }
 
 // Runs inside the page and reads the box you're typing in
@@ -107,7 +119,7 @@ async function rewriteWithModel(text) {
   return improved;
 }
 
-// Shows a simple popup in the page (crude; the preview UI in step 6 replaces it)
+// Simple popup for problems found before the panel opens (no box focused, empty box)
 function showMessage(tabId, message) {
   chrome.scripting.executeScript({
     target: { tabId },
