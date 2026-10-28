@@ -40,10 +40,10 @@ Mahd — BS Data Science student, comfortable with Python/LLMs/RAG, **new to bro
 5. ✅ **Preview panel** (swapped ahead of write-back so nothing is ever replaced without a click): in-page panel (shadow DOM) shows original + editable improved prompt, with Copy and Close. No replacing yet.
 6. ✅ **Replace button** in the preview: write the (possibly edited) improved prompt back into the box (must handle `textarea`/`input` AND `contenteditable` editors like ChatGPT/Claude — these need input events fired so the site registers the change)
 7. ✅ **Task-type handling — done in reduced form.** Tests (explain / code / writing / translate) showed one general prompt adapts well, so no per-type templates. Instead tightened `prompts.js`: ask only for details that block the task (otherwise chatbot picks and states a default), never leak answer content ("such as X, Y" lists), keep the user's voice. Revisit real templates only if a task type keeps failing.
-8. **Clarifying questions:** if key info is missing (audience, format, constraints), ask 2–3 quick questions before rewriting
-   - Open question: technique 8 in `prompts.js` already has the *chatbot* ask for blocking details. Decide whether the extension asking first is still worth the extra UI.
-9. Short "why I changed this" note
-10. Site detection + model-aware tailoring
+   - Known quirk (accepted for now, revisit with real usage): on long prompts the model sometimes still adds an unneeded "ask me about X first" closing line (mostly seen on ChatGPT-tailored rewrites). The user can delete it in the preview.
+8. ⏸️ **Clarifying questions — deferred.** Target user is a lazy prompter who wants a polished prompt in one press; extra questions defeat that. Technique 8 in `prompts.js` already has the *chatbot* ask for details that block the task.
+9. ⏸️ **"Why I changed this" note — deferred** for the same reason (clutter in a one-press flow). Could return later as an optional setting.
+10. ✅ Site detection + model-aware tailoring — `SITE_TIPS` in `prompts.js` (Claude: XML tags; ChatGPT/Gemini: Markdown headings), added to the user message only, long prompts only
 11. Site adapters for top sites
 12. User-saved custom styles (e.g. short answers vs step-by-step)
 13. Publishing prep (key handling, privacy note, store listing)

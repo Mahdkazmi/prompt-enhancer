@@ -1,5 +1,5 @@
 import { CONFIG } from "./config.js";
-import { SYSTEM_PROMPT, buildUserMessage, extractImproved } from "./prompts.js";
+import { SYSTEM_PROMPT, buildUserMessage, extractImproved, getSiteTip } from "./prompts.js";
 import { renderPanel } from "./panel.js";
 
 // Add "Enhance prompt" to the right-click menu, only on text boxes
@@ -25,16 +25,18 @@ chrome.commands.onCommand.addListener(async (command) => {
 
 // Full flow: read the box -> show "Enhancing…" -> ask the model -> show the result for review
 async function enhancePrompt(tabId) {
-  const text = await grabText(tabId);
-  if (text === null) return; // grabText already told the user why
+  const grabbed = await grabText(tabId);
+  if (grabbed === null) return; // grabText already told the user why
+  const { text, hostname } = grabbed;
   if (!text.trim()) {
     showMessage(tabId, "The text box is empty. Type a prompt first.");
     return;
   }
   await showPanel(tabId, { state: "loading", original: text });
   try {
-    console.log("Sending to model…");
-    const improved = await rewriteWithModel(text);
+    const siteTip = getSiteTip(hostname);
+    console.log(`Sending to model… (site: ${hostname}, tailored for: ${siteTip?.name ?? "none"})`);
+    const improved = await rewriteWithModel(text, siteTip);
     console.log("Improved prompt:\n" + improved);
     await showPanel(tabId, { state: "done", original: text, improved });
   } catch (err) {
@@ -71,13 +73,17 @@ async function grabText(tabId) {
         // Remember the box for the Replace button: focus moves to our panel, so we can't
         // look it up again later. Our injected scripts share this global; the site can't see it.
         else globalThis.__promptEnhancerTarget = el;
-        return text;
+        // The site's address tells us which chatbot the prompt is for
+        return { text, hostname: location.hostname };
       }
     });
-    const text = result?.result ?? null;
-    if (text === null) console.warn("No readable text box was focused.");
-    else console.log("Grabbed text:", text);
-    return text;
+    const grabbed = result?.result;
+    if (!grabbed || grabbed.text === null) {
+      console.warn("No readable text box was focused.");
+      return null;
+    }
+    console.log("Grabbed text:", grabbed.text);
+    return grabbed;
   } catch (err) {
     // Extensions aren't allowed into opera://, chrome://, store or new-tab pages
     console.error("Can't read this page:", err.message);
@@ -86,7 +92,7 @@ async function grabText(tabId) {
 }
 
 // Sends the prompt to the configured provider and returns the rewritten version
-async function rewriteWithModel(text) {
+async function rewriteWithModel(text, siteTip) {
   const stored = await chrome.storage.local.get(CONFIG.apiKeyStorageName);
   const apiKey = stored[CONFIG.apiKeyStorageName];
   if (!apiKey) throw new Error("No API key saved. Open the extension's options page and add your Groq key.");
@@ -102,7 +108,7 @@ async function rewriteWithModel(text) {
       temperature: CONFIG.temperature,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: buildUserMessage(text) }
+        { role: "user", content: buildUserMessage(text, siteTip) }
       ]
     })
   });

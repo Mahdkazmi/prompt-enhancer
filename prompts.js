@@ -13,17 +13,18 @@ Make the prompt get a noticeably better answer while asking for exactly the same
 Apply these prompt-writing best practices in proportion to the prompt. A one-line question usually needs one or two; a complex task may need most. Use a technique only when it would improve the answer.
 1. State the task clearly with a direct action verb (explain, write, compare, fix, summarise).
 2. Spell out what a good answer should cover, based on what the request naturally needs.
-3. Specify the output format and rough length when it helps (steps, bullet list, table, code block, a few paragraphs).
+3. Specify the output format and rough length when it helps (steps, bullet list, table, code block, a few paragraphs). Describe the overall shape of the answer in a line or two; don't itemise every piece it should contain.
 4. Keep all context the user gave, and put it before the task so the chatbot reads the background first.
 5. For long or multi-part prompts, separate context, task, constraints and output format under short headings.
 6. Break a complex task into ordered steps.
 7. Phrase requirements positively ("use plain language") rather than only as prohibitions.
-8. Ask only for what blocks the task. When the task cannot be done at all without something only the user has (their code, error message or document, or personal details for a letter, plan or advice about their own situation), end with one line asking the chatbot to request it before answering. When a sensible default exists (programming language, order, length, level of detail), do not ask; at most add one short line telling the chatbot to pick a reasonable default and say which one it chose. Never ask for details on explanations of general topics.
+8. Ask only for what blocks the task. When the task cannot be done at all without something only the user has (their code, error message or document, or personal details for a letter, plan or advice about their own situation), end with one line asking the chatbot to request it before answering. When a sensible default exists (programming language, order, length, level of detail), do not ask; at most add one short line telling the chatbot to pick a reasonable default and say which one it chose. Never ask for details on explanations of general topics. Use at most one such closing line in total, and skip it if the prompt already covers that choice (e.g. it already asks for a recommendation).
 9. Fix unclear wording, grammar and typos.
 </techniques>
 
 <boundaries>
 - Keep the topic and goal the same. Add only requirements that follow naturally from the request.
+- Restate each thing the user asked for at the same scope: never narrow it, widen it or reinterpret it. When a word like "it" or "they" refers back to something, keep that exact meaning. If part of the request could be read two ways, keep the user's own wording for that part instead of choosing one reading.
 - Never invent facts about the user or their situation (name, job, skill level, project, deadline, audience). Technique 8 handles missing details.
 - Copy specific details exactly: names, numbers, code, quoted text, links.
 - If the prompt is already specific and complete, keep it as it is apart from small wording fixes.
@@ -52,10 +53,42 @@ Write in the user's voice, as if they typed it, and in the same language they us
 </example>
 </examples>`;
 
+// Light per-chatbot formatting tips (model-aware rewriting). Only the layout of long,
+// multi-part prompts changes; sites not listed here get the general rules alone.
+const SITE_TIPS = [
+  {
+    hosts: ["claude.ai"],
+    name: "Claude",
+    tip: "Claude follows XML-tagged structure well. For long or multi-part prompts, separate the parts with simple XML tags such as <context>, <task> and <format> instead of headings."
+  },
+  {
+    hosts: ["chatgpt.com", "chat.openai.com"],
+    name: "ChatGPT",
+    tip: "For long or multi-part prompts, use short Markdown headings or clearly labelled sections."
+  },
+  {
+    hosts: ["gemini.google.com"],
+    name: "Gemini",
+    tip: "For long or multi-part prompts, use short Markdown headings or clearly labelled sections, and state the constraints and output format explicitly."
+  }
+];
+
+// Finds the tip for a site, e.g. "claude.ai" -> Claude. Returns null for unknown sites.
+export function getSiteTip(hostname) {
+  return SITE_TIPS.find((site) =>
+    site.hosts.some((host) => hostname === host || hostname.endsWith("." + host))
+  ) ?? null;
+}
+
 // Wrapping the text in tags makes it clear this is material to improve,
 // not a question for the model to answer.
-export function buildUserMessage(text) {
-  return `Improve the prompt inside the <prompt> tags.\n\n<prompt>\n${text}\n</prompt>`;
+export function buildUserMessage(text, siteTip) {
+  let message = `Improve the prompt inside the <prompt> tags.`;
+  if (siteTip) {
+    // Placed here rather than in SYSTEM_PROMPT so the main instructions stay identical on every site
+    message += `\n\nThe prompt will be sent to ${siteTip.name}. Formatting tip for it (this replaces technique 5; ignore it for short prompts, and don't mention the chatbot by name): ${siteTip.tip}`;
+  }
+  return `${message}\n\n<prompt>\n${text}\n</prompt>`;
 }
 
 // Pulls the prompt out of the <improved> tags. If the model forgot the tags,
