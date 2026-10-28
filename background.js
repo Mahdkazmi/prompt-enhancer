@@ -54,12 +54,32 @@ async function enhancePrompt(tabId) {
 }
 
 // Draws or updates the preview panel in the page (see panel.js)
-function showPanel(tabId, data) {
+async function showPanel(tabId, data) {
+  const logo = await getLogoDataUrl();
   return chrome.scripting.executeScript({
     target: { tabId },
     func: renderPanel,
-    args: [data]
+    args: [{ ...data, logo }]
   }).catch((err) => console.error("Couldn't show the panel:", err.message));
+}
+
+// Most sites aren't allowed to load files from the extension (and allowing it everywhere
+// would let any site detect the extension), so the panel gets the logo as image data instead.
+// Read once, then reused until the service worker restarts.
+let logoDataUrl = null;
+async function getLogoDataUrl() {
+  if (logoDataUrl) return logoDataUrl;
+  try {
+    const response = await fetch(chrome.runtime.getURL("icons/button.png"));
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    logoDataUrl = "data:image/png;base64," + btoa(binary);
+  } catch (err) {
+    // A missing logo isn't worth breaking the panel over
+    console.error("Couldn't load the panel logo:", err.message);
+  }
+  return logoDataUrl;
 }
 
 // Runs inside the page and reads the box you're typing in

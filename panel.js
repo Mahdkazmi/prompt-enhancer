@@ -39,6 +39,8 @@ export function renderPanel(data) {
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
       }
       header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+      .title { display: flex; align-items: center; gap: 8px; }
+      .logo { width: 20px; height: 20px; border-radius: 50%; display: block; }
       .label { font-size: 12px; color: #666; margin: 10px 0 4px; }
       .original {
         max-height: 90px; overflow: auto; white-space: pre-wrap;
@@ -69,7 +71,10 @@ export function renderPanel(data) {
       }
     </style>
     <div class="panel" role="dialog" aria-label="Prompt Enhancer">
-      <header><span>Prompt Enhancer</span><button class="x" aria-label="Close">×</button></header>
+      <header>
+        <span class="title"><img class="logo" alt="">Prompt Enhancer</span>
+        <button class="x" aria-label="Close">×</button>
+      </header>
       <div class="label">Original</div>
       <div class="original"></div>
       <div class="label">Improved (you can edit it)</div>
@@ -79,6 +84,15 @@ export function renderPanel(data) {
         <button class="close">Close</button>
       </footer>
     </div>`;
+
+  // The logo arrives as image data from background.js; drop it rather than show a broken image
+  const logo = shadow.querySelector(".logo");
+  if (data.logo) {
+    logo.src = data.logo;
+    logo.addEventListener("error", () => logo.remove());
+  } else {
+    logo.remove();
+  }
 
   // textContent, never innerHTML, for user/model text: it can't run as code
   shadow.querySelector(".original").textContent = data.original;
