@@ -37,11 +37,11 @@ Mahd — BS Data Science student, comfortable with Python/LLMs/RAG, **new to bro
 2. ✅ Grab text from the focused box (generic mode) — skips password fields, handles restricted pages
 3. ✅ Options page to save the Groq API key in `chrome.storage.local`
 4. ✅ Send the grabbed text to Groq with a rewriting system prompt; log the result
-   - Known prompt quirks to revisit (step 7): sometimes hints at answer content in "e.g." lists; occasional slip out of the user's voice ("you're" instead of "I'm")
 5. ✅ **Preview panel** (swapped ahead of write-back so nothing is ever replaced without a click): in-page panel (shadow DOM) shows original + editable improved prompt, with Copy and Close. No replacing yet.
 6. ✅ **Replace button** in the preview: write the (possibly edited) improved prompt back into the box (must handle `textarea`/`input` AND `contenteditable` editors like ChatGPT/Claude — these need input events fired so the site registers the change)
-7. **Task-type detection:** code / writing / research / summarizing etc., each with its own rewrite template
+7. ✅ **Task-type handling — done in reduced form.** Tests (explain / code / writing / translate) showed one general prompt adapts well, so no per-type templates. Instead tightened `prompts.js`: ask only for details that block the task (otherwise chatbot picks and states a default), never leak answer content ("such as X, Y" lists), keep the user's voice. Revisit real templates only if a task type keeps failing.
 8. **Clarifying questions:** if key info is missing (audience, format, constraints), ask 2–3 quick questions before rewriting
+   - Open question: technique 8 in `prompts.js` already has the *chatbot* ask for blocking details. Decide whether the extension asking first is still worth the extra UI.
 9. Short "why I changed this" note
 10. Site detection + model-aware tailoring
 11. Site adapters for top sites

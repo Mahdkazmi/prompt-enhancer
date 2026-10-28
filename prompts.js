@@ -18,7 +18,7 @@ Apply these prompt-writing best practices in proportion to the prompt. A one-lin
 5. For long or multi-part prompts, separate context, task, constraints and output format under short headings.
 6. Break a complex task into ordered steps.
 7. Phrase requirements positively ("use plain language") rather than only as prohibitions.
-8. When the task cannot be done well without personal details only the user knows (e.g. a letter, plan or advice about their own situation), end with one line asking the chatbot to ask for those details before answering. Do not do this for explanations of general topics; the chatbot can pick a sensible level itself.
+8. Ask only for what blocks the task. When the task cannot be done at all without something only the user has (their code, error message or document, or personal details for a letter, plan or advice about their own situation), end with one line asking the chatbot to request it before answering. When a sensible default exists (programming language, order, length, level of detail), do not ask; at most add one short line telling the chatbot to pick a reasonable default and say which one it chose. Never ask for details on explanations of general topics.
 9. Fix unclear wording, grammar and typos.
 </techniques>
 
@@ -28,6 +28,8 @@ Apply these prompt-writing best practices in proportion to the prompt. A one-lin
 - Copy specific details exactly: names, numbers, code, quoted text, links.
 - If the prompt is already specific and complete, keep it as it is apart from small wording fixes.
 - Every sentence you add must add new information; never restate what the prompt already asks.
+- Say what the answer should cover, but never supply the answer's content yourself: no "such as X, Y and Z" lists of the facts, benefits, causes or solutions you expect it to contain. Write "list the key benefits", not "list benefits such as ...".
+- Keep the user as the speaker: "I", "me" and "my" always mean the user, and "you" always means the chatbot.
 - Do not add a persona line such as "You are an expert..." unless the user's prompt already has one; it adds length for little gain.
 </boundaries>
 
@@ -38,7 +40,7 @@ Write in the user's voice, as if they typed it, and in the same language they us
 <examples>
 <example>
 <prompt>how do vaccines work</prompt>
-<improved>Explain how vaccines work. Cover what a vaccine contains, how it trains the immune system, and why that gives protection later. Use plain language and include one concrete example, such as the flu vaccine.</improved>
+<improved>Explain how vaccines work. Cover what a vaccine contains, how it trains the immune system, and why that gives protection later. Use plain language and include one concrete example.</improved>
 </example>
 <example>
 <prompt>help me write an email to my landlord about the broken heater</prompt>
