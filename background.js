@@ -145,6 +145,7 @@ async function rewriteWithModel(text, siteTip) {
     // Groq explains what went wrong in the body (bad key, rate limit, unknown model…)
     const details = await response.text();
     console.error("Provider error body:", details);
+    if (response.status === 429) throw new Error(rateLimitMessage(response.headers.get("retry-after")));
     const hint = response.status === 401 ? " Check your API key on the options page." : "";
     throw new Error(`The model request failed (HTTP ${response.status}).${hint}`);
   }
@@ -154,6 +155,18 @@ async function rewriteWithModel(text, siteTip) {
   const improved = extractImproved(reply);
   if (!improved) throw new Error("The model returned an empty answer. Try again.");
   return improved;
+}
+
+// Turns Groq's "too many requests" into plain language. Groq's retry-after header
+// (in seconds) tells us which limit was hit: a short wait means the per-minute limit,
+// a long one means the free daily allowance is used up.
+function rateLimitMessage(retryAfterHeader) {
+  const seconds = Number(retryAfterHeader);
+  if (!seconds) return "You've hit Groq's free usage limit. Please wait a moment and try again.";
+  if (seconds <= 90) return `You've hit Groq's per-minute limit. Try again in about ${Math.ceil(seconds)} seconds.`;
+  const minutes = Math.ceil(seconds / 60);
+  const wait = minutes < 60 ? `${minutes} minutes` : `${Math.ceil(minutes / 60)} hours`;
+  return `You've used up Groq's free allowance for now. Try again in about ${wait}.`;
 }
 
 // Simple popup for problems found before the panel opens (no box focused, empty box)
