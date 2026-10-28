@@ -1,6 +1,10 @@
-# Prompt Enhancer
+<p align="center">
+  <img src="icons/icon128.png" alt="Prompt Enhancer logo" width="96">
+</p>
 
-A Chromium browser extension that turns rough prompts into clear, well-structured ones — without changing what you asked for.
+<h1 align="center">Prompt Enhancer</h1>
+
+<p align="center">A Chromium browser extension that turns rough prompts into clear, well-structured ones — without changing what you asked for.</p>
 
 Type a quick prompt into ChatGPT, Claude, Gemini or any other chat box, press one button, review the improved version, and replace your text with it.
 

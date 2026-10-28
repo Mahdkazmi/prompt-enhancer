@@ -10,6 +10,12 @@ Thumbs.db
 .vscode/
 *.log
 
+# Local-only files: original logo artwork (the icons/ folder is generated from it)
+# and the AI assistant's project notes
+Sleek Silver Ribbon P Logo.png
+logo_without_bg.png
+CLAUDE.md
+
 # Packaged builds
 *.zip
 *.crx
