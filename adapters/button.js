@@ -34,8 +34,9 @@
   // couldn't tell which box to read. Cancelling mousedown keeps focus in the chat box.
   button.addEventListener("mousedown", (e) => e.preventDefault());
   button.addEventListener("click", async () => {
-    // Also covers the case where the user never clicked into the box
-    adapter.findBox()?.focus();
+    // Make sure the box the pill sits on is the one that gets read
+    // (also covers the case where the user never clicked into a box)
+    currentBox?.focus();
     try {
       await chrome.runtime.sendMessage({ type: "enhance" });
     } catch (err) {
@@ -45,11 +46,27 @@
     }
   });
 
+  // The box the pill is currently attached to
+  let currentBox = null;
+
+  // Which box gets the pill: the one the user is typing in, if any; otherwise the
+  // main box, which is the last one on the page (it sits below the conversation).
+  // Only visible boxes count, since sites can keep hidden copies around.
+  function pickBox() {
+    const visible = (selector) => [...document.querySelectorAll(selector)]
+      .filter((el) => el.getClientRects().length > 0);
+    const focused = document.activeElement;
+    const focusedBox = visible(adapter.boxSelector).find((el) => el === focused || el.contains(focused));
+    // Adapters can narrow what counts as the main box (optional; defaults to any chat box)
+    return focusedBox ?? visible(adapter.mainBoxSelector ?? adapter.boxSelector).at(-1) ?? null;
+  }
+
   // Puts the button just above the chat box's top-right corner, or hides it if there's no box
   function place() {
     // Sites redraw large parts of the page on navigation and can throw our button away; put it back
     if (!host.isConnected) document.documentElement.appendChild(host);
-    const box = adapter.findBox();
+    const box = pickBox();
+    currentBox = box;
     const rect = box ? adapter.findContainer(box).getBoundingClientRect() : null;
     if (!rect || rect.width === 0) {
       host.style.display = "none";
@@ -65,5 +82,7 @@
   setInterval(place, 300);
   window.addEventListener("resize", place);
   window.addEventListener("scroll", place, true);
+  // Move the pill right away when the user clicks into a different box
+  document.addEventListener("focusin", place);
   place();
 })();

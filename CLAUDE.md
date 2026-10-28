@@ -44,7 +44,7 @@ Mahd — BS Data Science student, comfortable with Python/LLMs/RAG, **new to bro
 8. ⏸️ **Clarifying questions — deferred.** Target user is a lazy prompter who wants a polished prompt in one press; extra questions defeat that. Technique 8 in `prompts.js` already has the *chatbot* ask for details that block the task.
 9. ⏸️ **"Why I changed this" note — deferred** for the same reason (clutter in a one-press flow). Could return later as an optional setting.
 10. ✅ Site detection + model-aware tailoring — `SITE_TIPS` in `prompts.js` (Claude: XML tags; ChatGPT/Gemini: Markdown headings), added to the user message only, long prompts only
-11. 🔄 Site adapters (ChatGPT first: `adapters/chatgpt.js` + shared `adapters/button.js`; Claude and Gemini next) for top sites
+11. ✅ Site adapters: "✨ Enhance" pill on ChatGPT, Claude and Gemini. Pill follows the focused chat box (incl. edit-message boxes), else sits on the main box. Adapters only give `boxSelector`, optional `mainBoxSelector` (Claude: its edit box is a plain textarea, main box is ProseMirror) and `findContainer`.
 12. User-saved custom styles (e.g. short answers vs step-by-step)
 13. Publishing prep (key handling, privacy note, store listing)
 
@@ -65,8 +65,8 @@ prompt-enhancer/
 ├── prompts.js         # rewriting system prompt (+ future templates)
 ├── panel.js           # in-page preview panel (self-contained; injected via executeScript)
 └── adapters/          # content scripts for the in-page Enhance button
-    ├── button.js      # shared: draws the button, keeps it positioned, messages background.js
-    ├── chatgpt.js     # per-site: only where the chat box is (one file per site)
+    ├── button.js      # shared: draws the pill on the focused chat box (else the bottom-most = main box), keeps it positioned, messages background.js
+    ├── chatgpt.js     # per-site: boxSelector (what a chat box looks like) + findContainer (one file per site)
     ├── claude.js
     └── gemini.js
 ```

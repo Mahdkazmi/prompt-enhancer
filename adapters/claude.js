@@ -3,15 +3,13 @@
 // button.js (loaded right after this) reads this object.
 globalThis.__promptEnhancerAdapter = {
   name: "Claude",
-  // The editor the user types in (a ProseMirror contenteditable). The main chat box sits
-  // in a <fieldset>; checking that first avoids picking the editor that appears when you
-  // edit an earlier message. Only visible boxes count, as hidden copies can linger.
-  findBox: () => {
-    const candidates = document.querySelectorAll(
-      'fieldset .ProseMirror[contenteditable="true"], .ProseMirror[contenteditable="true"]'
-    );
-    return [...candidates].find((el) => el.getClientRects().length > 0) ?? null;
-  },
-  // The visible box around the editor; the button sits just above its top-right corner
+  // What any chat box looks like here: the main box is a ProseMirror editor;
+  // editing an earlier message opens a plain <textarea> instead
+  boxSelector: '.ProseMirror[contenteditable="true"], textarea',
+  // When nothing is focused, only the ProseMirror box counts as the main box, so the
+  // pill doesn't wander into other textareas (project instructions, settings dialogs)
+  mainBoxSelector: '.ProseMirror[contenteditable="true"]',
+  // The visible box around the editor (the main box sits in a <fieldset>);
+  // the button sits just above its top-right corner
   findContainer: (box) => box.closest("fieldset") ?? box.parentElement
 };
