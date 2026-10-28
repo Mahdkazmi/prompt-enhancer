@@ -50,7 +50,7 @@ The extension uses [Groq](https://groq.com)'s API to rewrite prompts.
 ## Usage
 
 1. Type a prompt into a chat box.
-2. Click **✨ Enhance** next to the box (ChatGPT, Claude, Gemini), or press `Alt+Shift+E` on any site.
+2. Click the round **P** button above the box (ChatGPT, Claude, Gemini; hover it to see the **Enhance** label), or press `Alt+Shift+E` on any site.
 3. Review the suggestion in the panel and edit it if you like.
 4. Click **Replace** to put it in the chat box, or **Copy** to paste it yourself.
 

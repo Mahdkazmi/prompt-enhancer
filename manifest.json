@@ -11,6 +11,12 @@
   },
   "permissions": ["storage", "contextMenus", "activeTab", "scripting"],
   "host_permissions": ["https://api.groq.com/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://claude.ai/*", "https://gemini.google.com/*"],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/button.png"],
+      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*", "https://claude.ai/*", "https://gemini.google.com/*"]
+    }
+  ],
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],

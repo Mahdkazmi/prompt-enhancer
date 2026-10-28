@@ -13,20 +13,33 @@
   host.style.cssText = "position: fixed; z-index: 2147483646; display: none;";
   // Shadow DOM so the site's CSS can't restyle the button (same idea as panel.js)
   const shadow = host.attachShadow({ mode: "open" });
+  // A round logo by default; hovering slides out an "Enhance" label so first-time
+  // users can tell what it does. The label sits on the left and grows leftward,
+  // so the logo never moves out from under the cursor.
   shadow.innerHTML = `
     <style>
       button {
-        font: 500 12px/1 system-ui, sans-serif; padding: 6px 10px; cursor: pointer;
-        border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 999px;
-        background: #fff; color: #333; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        display: flex; flex-direction: row-reverse; align-items: center;
+        height: 30px; padding: 0; cursor: pointer; overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px;
+        background: #1b1b1d; /* matches the logo's background */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
       }
-      button:hover { background: #f2f2f2; }
-      @media (prefers-color-scheme: dark) {
-        button { background: #2c2c2c; color: #eee; border-color: #555; }
-        button:hover { background: #3a3a3a; }
+      img { width: 28px; height: 28px; border-radius: 50%; flex: none; display: block; }
+      .label {
+        max-width: 0; opacity: 0; white-space: nowrap;
+        font: 500 12px/1 system-ui, sans-serif; color: #e6e6e8;
+        transition: max-width 0.2s ease, opacity 0.2s ease, padding 0.2s ease;
       }
+      button:hover .label, button:focus-visible .label { max-width: 80px; opacity: 1; padding: 0 6px 0 12px; }
     </style>
-    <button title="Enhance prompt (Alt+Shift+E)">✨ Enhance</button>`;
+    <button title="Enhance prompt (Alt+Shift+E)" aria-label="Enhance prompt">
+      <img alt="">
+      <span class="label">Enhance</span>
+    </button>`;
+  // Extension files need a chrome-extension:// address to load inside a web page
+  // (allowed for this image in manifest.json "web_accessible_resources")
+  shadow.querySelector("img").src = chrome.runtime.getURL("icons/button.png");
   document.documentElement.appendChild(host);
 
   const button = shadow.querySelector("button");
@@ -73,7 +86,9 @@
       return;
     }
     host.style.display = "block"; // must be visible before we can measure the button
-    host.style.left = `${rect.right - host.offsetWidth}px`;
+    // Anchored by the right edge, so the hover label grows to the left instead of
+    // pushing the logo out from under the cursor
+    host.style.right = `${document.documentElement.clientWidth - rect.right}px`;
     host.style.top = `${rect.top - host.offsetHeight - 6}px`;
   }
 
