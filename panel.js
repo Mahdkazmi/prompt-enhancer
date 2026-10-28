@@ -109,6 +109,17 @@ export function renderPanel(data) {
   } else if (data.state === "error") {
     body.className = "body error";
     body.textContent = data.error;
+    if (data.needsKey) {
+      // Key problems are fixed on the settings page; save the user hunting for it
+      const settingsBtn = document.createElement("button");
+      settingsBtn.className = "primary";
+      settingsBtn.textContent = "Open settings";
+      settingsBtn.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ type: "openOptions" })
+          .catch((err) => console.error("Prompt Enhancer:", err.message));
+      });
+      shadow.querySelector("footer").appendChild(settingsBtn);
+    }
   } else {
     const textarea = document.createElement("textarea");
     textarea.value = data.improved;

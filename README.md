@@ -41,11 +41,12 @@ Developed and tested on Opera GX; it uses standard Manifest V3 APIs and targets 
 
 ## Setup
 
-The extension uses [Groq](https://groq.com)'s API to rewrite prompts.
+The extension uses [Groq](https://groq.com)'s API to rewrite prompts. The settings page opens automatically after installation with these steps:
 
-1. Create a free API key at [console.groq.com](https://console.groq.com) → **API Keys**.
-2. On the extensions page, open Prompt Enhancer's **Details** → **Extension options**.
-3. Paste the key and click **Save**.
+1. Create a free API key at [console.groq.com/keys](https://console.groq.com/keys).
+2. Paste the key and click **Save**.
+
+You can reopen the settings at any time from the extensions page (**Details** → **Extension options**), or from the **Open settings** button shown when a key is missing or rejected.
 
 ## Usage
 
@@ -110,3 +111,7 @@ The provider is configured in one file, so any OpenAI-compatible API can be used
 
 - Saved style preferences (e.g. always concise, always step-by-step)
 - Store release with a simpler key setup
+
+## License
+
+[MIT](LICENSE)

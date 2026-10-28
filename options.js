@@ -26,7 +26,8 @@ document.getElementById("save").addEventListener("click", async () => {
     await chrome.storage.local.set({ groqApiKey: key });
     // Saved anyway, but warn: a typo here would only show up later as a failed API call
     if (!key.startsWith("gsk_")) showStatus("Saved, but Groq keys usually start with gsk_ — double-check it.", "error");
-    else showStatus("Saved ✓", "ok");
+    // Tell new users what to do next, since this is where installing leaves them
+    else showStatus("Saved ✓ You're all set: click the round P button on ChatGPT, Claude or Gemini, or press Alt+Shift+E in any text box.", "ok");
   } catch (err) {
     showStatus("Couldn't save: " + err.message, "error");
   }

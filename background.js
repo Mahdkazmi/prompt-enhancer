@@ -2,13 +2,16 @@ import { CONFIG } from "./config.js";
 import { SYSTEM_PROMPT, buildUserMessage, extractImproved, getSiteTip } from "./prompts.js";
 import { renderPanel } from "./panel.js";
 
-// Add "Enhance prompt" to the right-click menu, only on text boxes
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
+  // Add "Enhance prompt" to the right-click menu, only on text boxes
   chrome.contextMenus.create({
     id: "enhance-prompt",
     title: "Enhance prompt",
     contexts: ["editable"]
   });
+  // First install only (not updates or reloads): nothing works without a key,
+  // so take the user straight to the setup steps
+  if (details.reason === "install") chrome.runtime.openOptionsPage();
 });
 
 // Right-click trigger
@@ -23,11 +26,13 @@ chrome.commands.onCommand.addListener(async (command) => {
   if (tab) enhancePrompt(tab.id);
 });
 
-// In-page "Enhance" button (adapters/button.js) trigger
+// Messages from scripts in the page: the "Enhance" button (adapters/button.js) and
+// the panel's "Open settings" button (panel.js; pages can't open the options page themselves)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message?.type !== "enhance" || !sender.tab?.id) return;
-  enhancePrompt(sender.tab.id);
-  // Answer right away so the button's sendMessage doesn't wait or report a closed connection
+  if (message?.type === "enhance" && sender.tab?.id) enhancePrompt(sender.tab.id);
+  else if (message?.type === "openOptions") chrome.runtime.openOptionsPage();
+  else return;
+  // Answer right away so the sender's sendMessage doesn't wait or report a closed connection
   sendResponse({ ok: true });
 });
 
@@ -49,7 +54,8 @@ async function enhancePrompt(tabId) {
     await showPanel(tabId, { state: "done", original: text, improved });
   } catch (err) {
     console.error("Enhance failed:", err.message);
-    await showPanel(tabId, { state: "error", original: text, error: err.message });
+    // needsKey adds an "Open settings" button to the panel (missing or rejected key)
+    await showPanel(tabId, { state: "error", original: text, error: err.message, needsKey: err.needsKey === true });
   }
 }
 
@@ -123,7 +129,7 @@ async function grabText(tabId) {
 async function rewriteWithModel(text, siteTip) {
   const stored = await chrome.storage.local.get(CONFIG.apiKeyStorageName);
   const apiKey = stored[CONFIG.apiKeyStorageName];
-  if (!apiKey) throw new Error("No API key saved. Open the extension's options page and add your Groq key.");
+  if (!apiKey) throw keyError("No API key saved yet. Add your free Groq key in the settings.");
 
   const response = await fetch(CONFIG.endpoint, {
     method: "POST",
@@ -146,8 +152,8 @@ async function rewriteWithModel(text, siteTip) {
     const details = await response.text();
     console.error("Provider error body:", details);
     if (response.status === 429) throw new Error(rateLimitMessage(response.headers.get("retry-after")));
-    const hint = response.status === 401 ? " Check your API key on the options page." : "";
-    throw new Error(`The model request failed (HTTP ${response.status}).${hint}`);
+    if (response.status === 401) throw keyError("Groq rejected your API key. Check it in the settings.");
+    throw new Error(`The model request failed (HTTP ${response.status}).`);
   }
 
   const data = await response.json();
@@ -155,6 +161,13 @@ async function rewriteWithModel(text, siteTip) {
   const improved = extractImproved(reply);
   if (!improved) throw new Error("The model returned an empty answer. Try again.");
   return improved;
+}
+
+// An error the user fixes on the settings page; the panel offers a button to get there
+function keyError(message) {
+  const err = new Error(message);
+  err.needsKey = true;
+  return err;
 }
 
 // Turns Groq's "too many requests" into plain language. Groq's retry-after header
