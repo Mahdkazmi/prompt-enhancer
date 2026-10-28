@@ -4,7 +4,13 @@
   "version": "0.1.0",
   "description": "Turns rough prompts into clear ones on any LLM site.",
   "permissions": ["storage", "contextMenus", "activeTab", "scripting"],
-  "host_permissions": ["https://api.groq.com/*"],
+  "host_permissions": ["https://api.groq.com/*", "https://chatgpt.com/*", "https://chat.openai.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+      "js": ["adapters/chatgpt.js", "adapters/button.js"]
+    }
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"

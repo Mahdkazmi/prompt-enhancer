@@ -23,6 +23,14 @@ chrome.commands.onCommand.addListener(async (command) => {
   if (tab) enhancePrompt(tab.id);
 });
 
+// In-page "Enhance" button (adapters/button.js) trigger
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type !== "enhance" || !sender.tab?.id) return;
+  enhancePrompt(sender.tab.id);
+  // Answer right away so the button's sendMessage doesn't wait or report a closed connection
+  sendResponse({ ok: true });
+});
+
 // Full flow: read the box -> show "Enhancing…" -> ask the model -> show the result for review
 async function enhancePrompt(tabId) {
   const grabbed = await grabText(tabId);
