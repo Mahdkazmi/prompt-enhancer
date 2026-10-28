@@ -66,7 +66,8 @@ prompt-enhancer/
 ├── panel.js           # in-page preview panel (self-contained; injected via executeScript)
 └── adapters/          # content scripts for the in-page Enhance button
     ├── button.js      # shared: draws the button, keeps it positioned, messages background.js
-    └── chatgpt.js     # per-site: only where the chat box is (one file per site)
+    ├── chatgpt.js     # per-site: only where the chat box is (one file per site)
+    └── claude.js
 ```
 
 ## Conventions
