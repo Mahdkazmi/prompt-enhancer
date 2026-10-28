@@ -67,7 +67,8 @@ prompt-enhancer/
 └── adapters/          # content scripts for the in-page Enhance button
     ├── button.js      # shared: draws the button, keeps it positioned, messages background.js
     ├── chatgpt.js     # per-site: only where the chat box is (one file per site)
-    └── claude.js
+    ├── claude.js
+    └── gemini.js
 ```
 
 ## Conventions

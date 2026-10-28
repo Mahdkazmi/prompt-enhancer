@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Turns rough prompts into clear ones on any LLM site.",
   "permissions": ["storage", "contextMenus", "activeTab", "scripting"],
-  "host_permissions": ["https://api.groq.com/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://claude.ai/*"],
+  "host_permissions": ["https://api.groq.com/*", "https://chatgpt.com/*", "https://chat.openai.com/*", "https://claude.ai/*", "https://gemini.google.com/*"],
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
@@ -13,6 +13,10 @@
     {
       "matches": ["https://claude.ai/*"],
       "js": ["adapters/claude.js", "adapters/button.js"]
+    },
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "js": ["adapters/gemini.js", "adapters/button.js"]
     }
   ],
   "background": {
